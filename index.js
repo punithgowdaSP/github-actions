@@ -18,5 +18,5 @@ app.listen(888, () => {
 
 
 setInterval(() => {
-  console.log('🕒 Server heartbeat: still running every 10 seconds...');
-}, 10000);
+  console.log('🕒 Server heartbeat: still running every 5 seconds...');
+}, 5000);
