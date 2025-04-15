@@ -13,3 +13,8 @@ app.get('/', (req, res) => {
 app.listen(888, () => {
   console.log('Server is running on http://localhost:888');
 });
+
+
+setInterval(() => {
+  console.log('🕒 Server heartbeat: still running every 10 seconds...');
+}, 10000);
