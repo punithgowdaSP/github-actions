@@ -3,32 +3,31 @@ name: Deploy to LightSail
 on:
   push:
     branches:
-      - main  # Trigger on pushing to the main branch (after PR merge)
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set up SSH key for deployment
+      - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Deploy to LightSail
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${SSH_USERNAME}@${SSH_HOST} -p ${SSH_PORT} << 'EOF'
-            cd /path/to/your/project
-            git pull origin main  # Pull from main branch instead of develop
-            npm install
-            npm run build
-            pm2 restart your-app-name  # Or use the command relevant to your app
-          EOF
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST << 'EOF'
+            cd /home/ubuntu/github-actions/github-actions
+            git pull origin main
+            npm install
+            pm2 restart all || pm2 start index.js --name  ci_cd_test
+          EOF
 
