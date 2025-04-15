@@ -9,6 +9,8 @@ app.get('/', (req, res) => {
   res.send('Hello, Express server running on port 888!');
 });
 
+console.log("test");
+
 // Start the server and listen on port 888
 app.listen(888, () => {
   console.log('Server is running on http://localhost:888');
