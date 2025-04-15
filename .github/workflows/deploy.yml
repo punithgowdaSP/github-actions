@@ -1,9 +1,9 @@
-name: Deploy to Local Server via Ngrok SSH
+name: Deploy to LightSail
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on pushing to the main branch (after PR merge)
 
 jobs:
   deploy:
@@ -11,17 +11,24 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Set up SSH key for deployment
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          host: ${{ secrets.SSH_HOST }}  # Use your Ngrok public host here (e.g., 2856-106-51-223-27.ngrok-free.app)
-          port: ${{ secrets.SSH_PORT }}  # Use the SSH port provided by Ngrok
-          username: ${{ secrets.SSH_USERNAME }}  # Use your machine's username (e.g., ubuntu)
-          key: ${{ secrets.SSH_KEY }}  # Your private SSH key
-          script: |
-            cd /path/to/your/project  # Update with your project directory path
-            git pull origin main  # Pull the latest changes from `main`
-            npm install  # Install dependencies
-            pm2 restart my-backend  # Restart the app with PM2
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to LightSail
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${SSH_USERNAME}@${SSH_HOST} -p ${SSH_PORT} << 'EOF'
+            cd /path/to/your/project
+            git pull origin main  # Pull from main branch instead of develop
+            npm install
+            npm run build
+            pm2 restart your-app-name  # Or use the command relevant to your app
+          EOF
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+
